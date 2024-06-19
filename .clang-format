@@ -1,0 +1,10 @@
+UseTab: Never
+IndentWidth: 2
+BreakBeforeBraces: Allman
+AllowShortIfStatementsOnASingleLine: false
+IndentCaseLabels: true
+ColumnLimit: 0
+InsertNewlineAtEOF: true
+AllowShortBlocksOnASingleLine: true
+AllowShortLoopsOnASingleLine: true
+Cpp11BracedListStyle: false
