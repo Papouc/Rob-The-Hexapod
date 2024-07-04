@@ -1,17 +1,24 @@
 #pragma once
 #include "servoArgs.h"
+#include "vector.h"
+#include "interpolationType.h"
 #include <Ramp.h>
 #include <Servo.h>
 
 // leg hardware params (in mm)
-#define MAIN_LINK 78.720
-#define BOTTOM_LINK 84.052
-#define DIAG_LINK 136.917
-#define SEC_DIAG_LINK 107.656
-#define SEC_DIAG_ANGLE 121.100 // degrees
+#define MAIN_LINK 78.720f
+#define BOTTOM_LINK 84.052f
+#define DIAG_LINK 136.917f
+#define COXA_LINK 79.0f
+#define SEC_DIAG_LINK 107.656f
+#define SEC_DIAG_ANGLE 121.100f // degrees
 
-#define IK_DEFUALT_X 96.252
-#define IK_DEFAULT_Y 18.653
+#define IK_DEFUALT_X 175.252f
+#define IK_DEFAULT_Y 18.653f
+#define IK_DEFAULT_Z 0.0f
+
+#define MIN_ROT_ANGLE -80
+#define MAX_ROT_ANGLE 80
 
 class Leg
 {
@@ -25,34 +32,47 @@ private:
   rampFloat femurRamp;
   rampFloat tibiaRamp;
 
+  // leg params
   int coxaBaseAngle;
   int femurBaseAngle;
   int tibiaBaseAngle;
-
   bool onRightSide;
 
-  // current leg pos (restricted to 2D plane)
-  float startX;
-  float startY;
-  float goalX;
-  float goalY;
+  // constant angle part of femur joint
+  float beta2;
 
-  // line for interpolation
-  float dirX;
-  float dirY;
-  int lineParam;
+  // base coordinates
+  Vector start;
+  Vector goal;
+
+  // interpolation stuff
+  InterpolationType interpolationType = LINE;
+  float pathLength;
+
+  // line
+  Vector direction;
+
+  // ellipse
+  Vector semiMajorAxis;
+  Vector semiMinorAxis;
+  Vector centerPoint;
+
+  // parameter settings
+  float stepSize = 0.05f;
+  float paramCap = 1.0f;
+  int param;
 
   float power(float num);
-  void moveToPos(float x, float y);
+  void moveToPos(Vector pos);
 
 public:
-  int rampDuration = 1000;
-  float interpolationStep = 0.2f;
+  float rampSpeed = 1.0f;
 
   Leg();
   Leg(ServoArgs coxaSrv, ServoArgs femurSrv, ServoArgs tibiaSrv, bool rightSide);
 
   void update();
   bool isInGoal();
-  void setGoal(float x, float y);
+  void setPosLine(Vector pos);
+  void setPosEllipse(Vector pos);
 };
