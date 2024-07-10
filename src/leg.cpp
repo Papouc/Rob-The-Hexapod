@@ -63,6 +63,7 @@ void Leg::setPosEllipse(Vector pos)
   paramCap = PI;
   stepSize = 0.314;
 
+  // apply new goal
   goal = pos;
 
   // point between start and goal
@@ -81,9 +82,9 @@ void Leg::setPosEllipse(Vector pos)
   float majorAxisLen = semiMajorAxis.getMagnitude();
   float minorAxisLen = semiMinorAxis.getMagnitude();
 
-  // make it a unit vector + multiply it by half of the legth of major axis
+  // make it a unit vector + multiply it by portion of the legth of major axis
   semiMinorAxis = semiMinorAxis * (1.0f / minorAxisLen);
-  semiMinorAxis = semiMinorAxis * (majorAxisLen / 2.0f);
+  semiMinorAxis = semiMinorAxis * (2.0f * majorAxisLen / 3.0f);
 
   // update minor axis length
   minorAxisLen = majorAxisLen / 2.0f;
@@ -131,12 +132,20 @@ void Leg::moveToPos(Vector pos)
   float femurToWrite = femurBaseAngle + orientation * (180.0f - (gammaAngle + femurAngle));
   float tibiaToWrite = tibiaBaseAngle + orientation * (90.0f - tibiaAngle);
 
+#ifdef CONST_VELOCITY
   // keep constant movement speed (path / velocity / number of points = time to move between two points)
   int rampTime = (pathLength / rampSpeed) / (int)(paramCap / stepSize);
+#else
+  int rampTime = movementTime;
+#endif
 
-  coxaRamp.go(coxaToWrite, rampTime);
-  femurRamp.go(femurToWrite, rampTime);
-  tibiaRamp.go(tibiaToWrite, rampTime);
+  // only accept not NaN values
+  if (!isnanf(coxaToWrite) && !isnanf(femurToWrite) && !isnanf(tibiaToWrite))
+  {
+    coxaRamp.go(coxaToWrite, rampTime);
+    femurRamp.go(femurToWrite, rampTime);
+    tibiaRamp.go(tibiaToWrite, rampTime);
+  }
 }
 
 void Leg::update()

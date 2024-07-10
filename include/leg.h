@@ -1,7 +1,7 @@
 #pragma once
+#include "interpolationType.h"
 #include "servoArgs.h"
 #include "vector.h"
-#include "interpolationType.h"
 #include <Ramp.h>
 #include <Servo.h>
 
@@ -16,9 +16,6 @@
 #define IK_DEFUALT_X 175.252f
 #define IK_DEFAULT_Y 18.653f
 #define IK_DEFAULT_Z 0.0f
-
-#define MIN_ROT_ANGLE -80
-#define MAX_ROT_ANGLE 80
 
 class Leg
 {
@@ -48,6 +45,7 @@ private:
   // interpolation stuff
   InterpolationType interpolationType = LINE;
   float pathLength;
+  int movementTime = 90;
 
   // line
   Vector direction;
@@ -58,7 +56,7 @@ private:
   Vector centerPoint;
 
   // parameter settings
-  float stepSize = 0.05f;
+  float stepSize = 0.1f;
   float paramCap = 1.0f;
   int param;
 
@@ -66,7 +64,10 @@ private:
   void moveToPos(Vector pos);
 
 public:
-  float rampSpeed = 1.0f;
+#ifdef CONST_VELOCITY
+  // only valid for constant speed movement
+  float rampSpeed = 0.15f;
+#endif
 
   Leg();
   Leg(ServoArgs coxaSrv, ServoArgs femurSrv, ServoArgs tibiaSrv, bool rightSide);

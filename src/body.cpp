@@ -25,7 +25,7 @@ void Body::initialize()
   // right front
   ServoArgs rightFrontCoxa = { .pin = RIGHT_FRONT_COXA, .minUs = 500, .maxUs = 2484, .baseAngle = 92 };
   ServoArgs rightFrontFemur = { .pin = RIGHT_FRONT_FEMUR, .minUs = 552, .maxUs = 2552, .baseAngle = 80 };
-  ServoArgs rightFrontTibia = { .pin = RIGHT_FRONT_TIBIA, .minUs = 468, .maxUs = 2484, .baseAngle = 86 };
+  ServoArgs rightFrontTibia = { .pin = RIGHT_FRONT_TIBIA, .minUs = 468, .maxUs = 2484, .baseAngle = 88 };
   legs[3] = Leg(rightFrontCoxa, rightFrontFemur, rightFrontTibia, true);
 
   // right middle
@@ -50,7 +50,6 @@ void Body::initialize()
   startTime = millis();
   isStanding = false;
   odd = true;
-  currentStage = LEAP_FORWARD;
 }
 
 void Body::update()
@@ -86,4 +85,91 @@ void Body::update()
     startTime = millis();
     return;
   }
+
+  if (odd)
+  {
+    // forward step
+    legs[0].setPosEllipse(getMotionVector(0, LEAP_FORWARD));
+    legs[2].setPosEllipse(getMotionVector(2, LEAP_FORWARD));
+    legs[4].setPosEllipse(getMotionVector(4, LEAP_FORWARD));
+
+    // slide
+    legs[1].setPosLine(getMotionVector(1, SLIDE_BACK));
+    legs[3].setPosLine(getMotionVector(3, SLIDE_BACK));
+    legs[5].setPosLine(getMotionVector(5, SLIDE_BACK));
+
+    startTime = millis();
+  }
+  else
+  {
+    // forward step
+    legs[1].setPosEllipse(getMotionVector(1, LEAP_FORWARD));
+    legs[3].setPosEllipse(getMotionVector(3, LEAP_FORWARD));
+    legs[5].setPosEllipse(getMotionVector(5, LEAP_FORWARD));
+
+    // slide
+    legs[0].setPosLine(getMotionVector(0, SLIDE_BACK));
+    legs[2].setPosLine(getMotionVector(2, SLIDE_BACK));
+    legs[4].setPosLine(getMotionVector(4, SLIDE_BACK));
+
+    startTime = millis();
+  }
+
+  odd = !odd;
+}
+
+Vector Body::getMotionVector(int legIndex, StepStages stage)
+{
+  Vector front, mid, rear;
+
+  switch (stage)
+  {
+    case LEAP_FORWARD:
+      front = { 202.884f, STANCE_Y, 42.426f };
+      mid = { 160.458f, STANCE_Y, 60.0f };
+      rear = { 118.032f, STANCE_Y, 42.426f };
+      break;
+    case SLIDE_BACK:
+      front = { 118.032f, STANCE_Y, -42.426f };
+      mid = { 160.458f, STANCE_Y, -60.0f };
+      rear = { 202.884f, STANCE_Y, -42.426f };
+      break;
+  }
+
+  Vector result;
+  if (legIndex >= 0 && legIndex <= 2)
+  {
+    // left side (only decide between front, mid and rear)
+    if (legIndex == 0)
+    {
+      result = front;
+    }
+    else if (legIndex == 1)
+    {
+      result = mid;
+    }
+    else if (legIndex == 2)
+    {
+      result = rear;
+    }
+  }
+  else
+  {
+    // right side (decide between front, mid and rear + change z orientation)
+    if (legIndex == 3)
+    {
+      result = front;
+    }
+    else if (legIndex == 4)
+    {
+      result = mid;
+    }
+    else if (legIndex == 5)
+    {
+      result = rear;
+    }
+    result.z = -result.z;
+  }
+
+  return result;
 }

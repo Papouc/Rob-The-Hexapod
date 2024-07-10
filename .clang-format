@@ -9,3 +9,4 @@ AllowShortBlocksOnASingleLine: true
 AllowShortLoopsOnASingleLine: true
 Cpp11BracedListStyle: false
 PackConstructorInitializers: NextLineOnly
+IndentPPDirectives: BeforeHash
