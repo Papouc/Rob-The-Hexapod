@@ -17,6 +17,9 @@ private:
   bool odd;
   bool isStanding;
 
+  void walkForward();
+  void rotateAround();
+
   Vector getMotionVector(int legIndex, StepStages stage);
 
 public:

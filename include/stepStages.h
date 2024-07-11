@@ -1,5 +1,13 @@
+#pragma once
+
+// names for points utilized during different robot movements
 enum StepStages
 {
-  LEAP_FORWARD,
-  SLIDE_BACK
+  // movement forward
+  STRAIGHT_FORWARD,
+  STRAIGHT_BACKWARDS,
+
+  // rotation clockwise
+  CLOCKWISE_FORWARD,
+  CLOCKWISE_BACKWARDS
 };

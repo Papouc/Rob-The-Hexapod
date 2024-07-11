@@ -45,7 +45,7 @@ private:
   // interpolation stuff
   InterpolationType interpolationType = LINE;
   float pathLength;
-  int movementTime = 90;
+  int movementTime = 60;
 
   // line
   Vector direction;

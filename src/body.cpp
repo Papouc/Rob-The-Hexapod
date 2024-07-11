@@ -86,53 +86,92 @@ void Body::update()
     return;
   }
 
+  rotateAround();
+  odd = !odd;
+}
+
+void Body::walkForward()
+{
   if (odd)
   {
     // forward step
-    legs[0].setPosEllipse(getMotionVector(0, LEAP_FORWARD));
-    legs[2].setPosEllipse(getMotionVector(2, LEAP_FORWARD));
-    legs[4].setPosEllipse(getMotionVector(4, LEAP_FORWARD));
+    legs[0].setPosEllipse(getMotionVector(0, STRAIGHT_FORWARD));
+    legs[2].setPosEllipse(getMotionVector(2, STRAIGHT_FORWARD));
+    legs[4].setPosEllipse(getMotionVector(4, STRAIGHT_FORWARD));
 
     // slide
-    legs[1].setPosLine(getMotionVector(1, SLIDE_BACK));
-    legs[3].setPosLine(getMotionVector(3, SLIDE_BACK));
-    legs[5].setPosLine(getMotionVector(5, SLIDE_BACK));
-
-    startTime = millis();
+    legs[1].setPosLine(getMotionVector(1, STRAIGHT_BACKWARDS));
+    legs[3].setPosLine(getMotionVector(3, STRAIGHT_BACKWARDS));
+    legs[5].setPosLine(getMotionVector(5, STRAIGHT_BACKWARDS));
   }
   else
   {
     // forward step
-    legs[1].setPosEllipse(getMotionVector(1, LEAP_FORWARD));
-    legs[3].setPosEllipse(getMotionVector(3, LEAP_FORWARD));
-    legs[5].setPosEllipse(getMotionVector(5, LEAP_FORWARD));
+    legs[1].setPosEllipse(getMotionVector(1, STRAIGHT_FORWARD));
+    legs[3].setPosEllipse(getMotionVector(3, STRAIGHT_FORWARD));
+    legs[5].setPosEllipse(getMotionVector(5, STRAIGHT_FORWARD));
 
     // slide
-    legs[0].setPosLine(getMotionVector(0, SLIDE_BACK));
-    legs[2].setPosLine(getMotionVector(2, SLIDE_BACK));
-    legs[4].setPosLine(getMotionVector(4, SLIDE_BACK));
-
-    startTime = millis();
+    legs[0].setPosLine(getMotionVector(0, STRAIGHT_BACKWARDS));
+    legs[2].setPosLine(getMotionVector(2, STRAIGHT_BACKWARDS));
+    legs[4].setPosLine(getMotionVector(4, STRAIGHT_BACKWARDS));
   }
+}
 
-  odd = !odd;
+void Body::rotateAround()
+{
+  if (odd)
+  {
+    // forward step
+    legs[0].setPosEllipse(getMotionVector(0, CLOCKWISE_FORWARD));
+    legs[2].setPosEllipse(getMotionVector(2, CLOCKWISE_FORWARD));
+    legs[4].setPosEllipse(getMotionVector(4, CLOCKWISE_BACKWARDS));
+
+    // slide
+    legs[1].setPosLine(getMotionVector(1, CLOCKWISE_BACKWARDS));
+    legs[3].setPosLine(getMotionVector(3, CLOCKWISE_FORWARD));
+    legs[5].setPosLine(getMotionVector(5, CLOCKWISE_FORWARD));
+  }
+  else
+  {
+    // forward step
+    legs[1].setPosEllipse(getMotionVector(1, CLOCKWISE_FORWARD));
+    legs[3].setPosEllipse(getMotionVector(3, CLOCKWISE_BACKWARDS));
+    legs[5].setPosEllipse(getMotionVector(5, CLOCKWISE_BACKWARDS));
+
+    // slide
+    legs[0].setPosLine(getMotionVector(0, CLOCKWISE_BACKWARDS));
+    legs[2].setPosLine(getMotionVector(2, CLOCKWISE_BACKWARDS));
+    legs[4].setPosLine(getMotionVector(4, CLOCKWISE_FORWARD));
+  }
 }
 
 Vector Body::getMotionVector(int legIndex, StepStages stage)
 {
   Vector front, mid, rear;
 
+  // points in each legs 3D space (calculated by hand in advance)
   switch (stage)
   {
-    case LEAP_FORWARD:
-      front = { 202.884f, STANCE_Y, 42.426f };
-      mid = { 160.458f, STANCE_Y, 60.0f };
-      rear = { 118.032f, STANCE_Y, 42.426f };
+    case STRAIGHT_FORWARD:
+      front = { 185.207f, STANCE_Y, 24.749f };
+      mid = { 160.458f, STANCE_Y, 35.0f };
+      rear = { 135.709f, STANCE_Y, 24.749f };
       break;
-    case SLIDE_BACK:
-      front = { 118.032f, STANCE_Y, -42.426f };
-      mid = { 160.458f, STANCE_Y, -60.0f };
-      rear = { 202.884f, STANCE_Y, -42.426f };
+    case STRAIGHT_BACKWARDS:
+      front = { 135.709f, STANCE_Y, -24.749f };
+      mid = { 160.458f, STANCE_Y, -35.0f };
+      rear = { 185.207, STANCE_Y, -24.749f };
+      break;
+    case CLOCKWISE_FORWARD:
+      front = { 155.384f, STANCE_Y, 34.630f };
+      mid = { 188.582f, STANCE_Y, 34.924f };
+      rear = { 160.947f, STANCE_Y, 34.997f };
+      break;
+    case CLOCKWISE_BACKWARDS:
+      front = { 160.947f, STANCE_Y, -34.997f };
+      mid = { 188.582f, STANCE_Y, -34.924f };
+      rear = { 155.384f, STANCE_Y, -34.630f };
       break;
   }
 
@@ -168,6 +207,7 @@ Vector Body::getMotionVector(int legIndex, StepStages stage)
     {
       result = rear;
     }
+
     result.z = -result.z;
   }
 

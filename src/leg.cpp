@@ -84,7 +84,7 @@ void Leg::setPosEllipse(Vector pos)
 
   // make it a unit vector + multiply it by portion of the legth of major axis
   semiMinorAxis = semiMinorAxis * (1.0f / minorAxisLen);
-  semiMinorAxis = semiMinorAxis * (2.0f * majorAxisLen / 3.0f);
+  semiMinorAxis = semiMinorAxis * (0.9f * majorAxisLen);
 
   // update minor axis length
   minorAxisLen = majorAxisLen / 2.0f;
