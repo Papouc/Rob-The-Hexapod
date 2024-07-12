@@ -9,10 +9,16 @@
 enum StepStages
 {
   // movement forward
-  STRAIGHT_FORWARD,
-  STRAIGHT_BACKWARDS,
+  STRAIGHT_FW,
+  STRAIGHT_BW,
 
   // rotation clockwise
-  ROTATION_FORWARD,
-  ROTATION_BACKWARDS
+  ROTATION_FW,
+  ROTATION_BW,
+
+  // diagonal movement
+  DIAG_AWAY_FW,
+  DIAG_AWAY_BW,
+  DIAG_INSIDE_FW,
+  DIAG_INSIDE_BW
 };

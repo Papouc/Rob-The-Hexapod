@@ -14,113 +14,89 @@ void GaitController::switchSides()
 
 void GaitController::walkForward()
 {
-  if (odd)
-  {
-    // forward step
-    legs[0].setPosEllipse(getMotionVector(0, STRAIGHT_FORWARD));
-    legs[2].setPosEllipse(getMotionVector(2, STRAIGHT_FORWARD));
-    legs[4].setPosEllipse(getMotionVector(4, STRAIGHT_FORWARD));
+  StepStages oddStep[] = { STRAIGHT_FW, STRAIGHT_BW, STRAIGHT_FW, STRAIGHT_BW, STRAIGHT_FW, STRAIGHT_BW };
+  StepStages evenStep[] = { STRAIGHT_BW, STRAIGHT_FW, STRAIGHT_BW, STRAIGHT_FW, STRAIGHT_BW, STRAIGHT_FW };
 
-    // slide
-    legs[1].setPosLine(getMotionVector(1, STRAIGHT_BACKWARDS));
-    legs[3].setPosLine(getMotionVector(3, STRAIGHT_BACKWARDS));
-    legs[5].setPosLine(getMotionVector(5, STRAIGHT_BACKWARDS));
-  }
-  else
-  {
-    // forward step
-    legs[1].setPosEllipse(getMotionVector(1, STRAIGHT_FORWARD));
-    legs[3].setPosEllipse(getMotionVector(3, STRAIGHT_FORWARD));
-    legs[5].setPosEllipse(getMotionVector(5, STRAIGHT_FORWARD));
-
-    // slide
-    legs[0].setPosLine(getMotionVector(0, STRAIGHT_BACKWARDS));
-    legs[2].setPosLine(getMotionVector(2, STRAIGHT_BACKWARDS));
-    legs[4].setPosLine(getMotionVector(4, STRAIGHT_BACKWARDS));
-  }
+  applyMotion(oddStep, evenStep);
 }
 
 void GaitController::walkBackward()
 {
-  if (odd)
-  {
-    // forward step
-    legs[0].setPosEllipse(getMotionVector(0, STRAIGHT_BACKWARDS));
-    legs[2].setPosEllipse(getMotionVector(2, STRAIGHT_BACKWARDS));
-    legs[4].setPosEllipse(getMotionVector(4, STRAIGHT_BACKWARDS));
+  StepStages oddStep[] = { STRAIGHT_BW, STRAIGHT_FW, STRAIGHT_BW, STRAIGHT_FW, STRAIGHT_BW, STRAIGHT_FW };
+  StepStages evenStep[] = { STRAIGHT_FW, STRAIGHT_BW, STRAIGHT_FW, STRAIGHT_BW, STRAIGHT_FW, STRAIGHT_BW };
 
-    // slide
-    legs[1].setPosLine(getMotionVector(1, STRAIGHT_FORWARD));
-    legs[3].setPosLine(getMotionVector(3, STRAIGHT_FORWARD));
-    legs[5].setPosLine(getMotionVector(5, STRAIGHT_FORWARD));
-  }
-  else
-  {
-    // forward step
-    legs[1].setPosEllipse(getMotionVector(1, STRAIGHT_BACKWARDS));
-    legs[3].setPosEllipse(getMotionVector(3, STRAIGHT_BACKWARDS));
-    legs[5].setPosEllipse(getMotionVector(5, STRAIGHT_BACKWARDS));
-
-    // slide
-    legs[0].setPosLine(getMotionVector(0, STRAIGHT_FORWARD));
-    legs[2].setPosLine(getMotionVector(2, STRAIGHT_FORWARD));
-    legs[4].setPosLine(getMotionVector(4, STRAIGHT_FORWARD));
-  }
+  applyMotion(oddStep, evenStep);
 }
 
 void GaitController::rotateCW()
 {
-  if (odd)
-  {
-    // forward step
-    legs[0].setPosEllipse(getMotionVector(0, ROTATION_FORWARD));
-    legs[2].setPosEllipse(getMotionVector(2, ROTATION_FORWARD));
-    legs[4].setPosEllipse(getMotionVector(4, ROTATION_BACKWARDS));
+  StepStages oddStep[] = { ROTATION_FW, ROTATION_BW, ROTATION_FW, ROTATION_FW, ROTATION_BW, ROTATION_FW };
+  StepStages evenStep[] = { ROTATION_BW, ROTATION_FW, ROTATION_BW, ROTATION_BW, ROTATION_FW, ROTATION_BW };
 
-    // slide
-    legs[1].setPosLine(getMotionVector(1, ROTATION_BACKWARDS));
-    legs[3].setPosLine(getMotionVector(3, ROTATION_FORWARD));
-    legs[5].setPosLine(getMotionVector(5, ROTATION_FORWARD));
-  }
-  else
-  {
-    // forward step
-    legs[1].setPosEllipse(getMotionVector(1, ROTATION_FORWARD));
-    legs[3].setPosEllipse(getMotionVector(3, ROTATION_BACKWARDS));
-    legs[5].setPosEllipse(getMotionVector(5, ROTATION_BACKWARDS));
-
-    // slide
-    legs[0].setPosLine(getMotionVector(0, ROTATION_BACKWARDS));
-    legs[2].setPosLine(getMotionVector(2, ROTATION_BACKWARDS));
-    legs[4].setPosLine(getMotionVector(4, ROTATION_FORWARD));
-  }
+  applyMotion(oddStep, evenStep);
 }
 
 void GaitController::rotateCCW()
 {
-  if (odd)
-  {
-    // forward step
-    legs[0].setPosEllipse(getMotionVector(0, ROTATION_BACKWARDS));
-    legs[2].setPosEllipse(getMotionVector(2, ROTATION_BACKWARDS));
-    legs[4].setPosEllipse(getMotionVector(4, ROTATION_FORWARD));
+  StepStages oddStep[] = { ROTATION_BW, ROTATION_FW, ROTATION_BW, ROTATION_BW, ROTATION_FW, ROTATION_BW };
+  StepStages evenStep[] = { ROTATION_FW, ROTATION_BW, ROTATION_FW, ROTATION_FW, ROTATION_BW, ROTATION_FW };
 
-    // slide
-    legs[1].setPosLine(getMotionVector(1, ROTATION_FORWARD));
-    legs[3].setPosLine(getMotionVector(3, ROTATION_BACKWARDS));
-    legs[5].setPosLine(getMotionVector(5, ROTATION_BACKWARDS));
-  }
-  else
-  {
-    // forward step
-    legs[1].setPosEllipse(getMotionVector(1, ROTATION_BACKWARDS));
-    legs[3].setPosEllipse(getMotionVector(3, ROTATION_FORWARD));
-    legs[5].setPosEllipse(getMotionVector(5, ROTATION_FORWARD));
+  applyMotion(oddStep, evenStep);
+}
 
-    // slide
-    legs[0].setPosLine(getMotionVector(0, ROTATION_FORWARD));
-    legs[2].setPosLine(getMotionVector(2, ROTATION_FORWARD));
-    legs[4].setPosLine(getMotionVector(4, ROTATION_BACKWARDS));
+void GaitController::walkDiagLeftFW()
+{
+  StepStages oddStep[] = { DIAG_AWAY_FW, DIAG_AWAY_BW, DIAG_AWAY_FW, DIAG_INSIDE_BW, DIAG_INSIDE_FW, DIAG_INSIDE_BW };
+  StepStages evenStep[] = { DIAG_AWAY_BW, DIAG_AWAY_FW, DIAG_AWAY_BW, DIAG_INSIDE_FW, DIAG_INSIDE_BW, DIAG_INSIDE_FW };
+
+  applyMotion(oddStep, evenStep);
+}
+
+void GaitController::walkDiagRightFW()
+{
+  StepStages oddStep[] = { DIAG_INSIDE_FW, DIAG_INSIDE_BW, DIAG_INSIDE_FW, DIAG_AWAY_BW, DIAG_AWAY_FW, DIAG_AWAY_BW };
+  StepStages evenStep[] = { DIAG_INSIDE_BW, DIAG_INSIDE_FW, DIAG_INSIDE_BW, DIAG_AWAY_FW, DIAG_AWAY_BW, DIAG_AWAY_FW };
+
+  applyMotion(oddStep, evenStep);
+}
+
+void GaitController::walkDiagLeftBW()
+{
+  StepStages oddStep[] = { DIAG_INSIDE_BW, DIAG_INSIDE_FW, DIAG_INSIDE_BW, DIAG_AWAY_FW, DIAG_AWAY_BW, DIAG_AWAY_FW };
+  StepStages evenStep[] = { DIAG_INSIDE_FW, DIAG_INSIDE_BW, DIAG_INSIDE_FW, DIAG_AWAY_BW, DIAG_AWAY_FW, DIAG_AWAY_BW };
+
+  applyMotion(oddStep, evenStep);
+}
+
+void GaitController::walkDiagRightBW()
+{
+  StepStages oddStep[] = { DIAG_AWAY_BW, DIAG_AWAY_FW, DIAG_AWAY_BW, DIAG_INSIDE_FW, DIAG_INSIDE_BW, DIAG_INSIDE_FW };
+  StepStages evenStep[] = { DIAG_AWAY_FW, DIAG_AWAY_BW, DIAG_AWAY_FW, DIAG_INSIDE_BW, DIAG_INSIDE_FW, DIAG_INSIDE_BW };
+
+  applyMotion(oddStep, evenStep);
+}
+
+void GaitController::applyMotion(StepStages oddStep[], StepStages evenStep[])
+{
+  StepStages *usedStep = odd ? oddStep : evenStep;
+
+  // assign destination point to each leg
+  for (int i = 0; i < LEG_CNT; i++)
+  {
+    if (odd && (i == 0 || i == 2 || i == 4))
+    {
+      // trio of legs raised during odd step
+      legs[i].setPosEllipse(getMotionVector(i, usedStep[i]));
+    }
+    else if (!odd && (i == 1 || i == 3 || i == 5))
+    {
+      // trio of legs raised during even step
+      legs[i].setPosEllipse(getMotionVector(i, usedStep[i]));
+    }
+    else
+    {
+      legs[i].setPosLine(getMotionVector(i, usedStep[i]));
+    }
   }
 }
 
@@ -129,27 +105,49 @@ Vector GaitController::getMotionVector(int legIndex, StepStages stage)
   Vector front, mid, rear;
 
   // points in each legs 3D space (calculated by hand in advance)
+  // would be smart to add some form on non-linear equation solver to eliminate the need
+  // to recaluclate this after every minor stance change
   switch (stage)
   {
-    case STRAIGHT_FORWARD:
+    case STRAIGHT_FW:
       front = { 185.207f, STANCE_Y, 24.749f };
       mid = { 160.458f, STANCE_Y, 35.0f };
       rear = { 135.709f, STANCE_Y, 24.749f };
       break;
-    case STRAIGHT_BACKWARDS:
+    case STRAIGHT_BW:
       front = { 135.709f, STANCE_Y, -24.749f };
       mid = { 160.458f, STANCE_Y, -35.0f };
       rear = { 185.207, STANCE_Y, -24.749f };
       break;
-    case ROTATION_FORWARD:
+    case ROTATION_FW:
       front = { 155.384f, STANCE_Y, 34.630f };
       mid = { 188.582f, STANCE_Y, 34.924f };
       rear = { 160.947f, STANCE_Y, 34.997f };
       break;
-    case ROTATION_BACKWARDS:
+    case ROTATION_BW:
       front = { 160.947f, STANCE_Y, -34.997f };
       mid = { 188.582f, STANCE_Y, -34.924f };
       rear = { 155.384f, STANCE_Y, -34.630f };
+      break;
+    case DIAG_AWAY_FW:
+      front = { 195.458f, STANCE_Y, 0.0f };
+      mid = { 185.207f, STANCE_Y, 24.749f };
+      rear = { 160.458f, STANCE_Y, 35.0f };
+      break;
+    case DIAG_AWAY_BW:
+      front = { 125.458f, STANCE_Y, 0.0f };
+      mid = { 135.709f, STANCE_Y, -24.749f };
+      rear = { 160.458f, STANCE_Y, -35.0f };
+      break;
+    case DIAG_INSIDE_FW:
+      front = { 160.458f, STANCE_Y, 35.0f };
+      mid = { 135.709f, STANCE_Y, 24.749f };
+      rear = { 125.458f, STANCE_Y, 0.0f };
+      break;
+    case DIAG_INSIDE_BW:
+      front = { 160.458f, STANCE_Y, -35.0f };
+      mid = { 185.207f, STANCE_Y, -24.749f };
+      rear = { 195.458f, STANCE_Y, 0.0f };
       break;
   }
 

@@ -88,6 +88,6 @@ void Body::update()
     return;
   }
 
-  gaitController.rotateCCW();
+  gaitController.walkDiagLeftBW();
   gaitController.switchSides();
 }
