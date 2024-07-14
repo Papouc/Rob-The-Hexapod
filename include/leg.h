@@ -54,6 +54,7 @@ private:
   Vector semiMajorAxis;
   Vector semiMinorAxis;
   Vector centerPoint;
+  float ellipseAxisPortion = 1.3f;
 
   // parameter settings
   float stepSize = 0.1f;

@@ -11,11 +11,15 @@ class Body
 private:
   Leg legs[LEG_CNT];
   GaitController gaitController;
-
-  unsigned long startTime;
   bool isStanding;
+  char lastCommand;
+
+  void standUp();
+  void sitDown();
+  
+  void checkDirection(char newCommand);
 
 public:
   void initialize();
-  void update();
+  void update(char command);
 };

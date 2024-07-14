@@ -1,4 +1,5 @@
 #include "body.h"
+#include "commands.h"
 #include "pinLayout.h"
 #include "servoArgs.h"
 
@@ -43,21 +44,15 @@ void Body::initialize()
   // pass pointer to legs arr to gait controller (arr decays into pointer)
   gaitController = GaitController(legs);
 
-  // put all legs into default position
-  Vector defaultPos = { IK_DEFUALT_X, IK_DEFAULT_Y, IK_DEFAULT_Z };
-  for (int i = 0; i < LEG_CNT; i++)
-  {
-    legs[i].setPosLine(defaultPos);
-  }
-
-  startTime = millis();
-  isStanding = false;
+  // reach "before connection" position
+  sitDown();
 }
 
-void Body::update()
+void Body::update(char command)
 {
   bool allPlaced = true;
 
+  // update positions of all legs
   for (int i = 0; i < LEG_CNT; i++)
   {
     if (!legs[i].isInGoal())
@@ -68,26 +63,92 @@ void Body::update()
     legs[i].update();
   }
 
-  if (millis() - startTime < INITIAL_WAIT || !allPlaced)
+  if (!allPlaced || command == NO_CMD || command == STOP_CMD)
   {
-    // retain some delay for stabilization during standup
+    // wait until current movement is finsihed (or just do "nothing" :D)
     return;
   }
 
-  if (!isStanding)
-  {
-    // initial stand up
-    Vector stance = { STANCE_X, STANCE_Y, STANCE_Z };
-    for (int i = 0; i < LEG_CNT; i++)
-    {
-      legs[i].setPosLine(stance);
-    }
+  // execute active leg trio pre-switch if moving to exactly oppostie direction
+  checkDirection(command);
 
-    isStanding = true;
-    startTime = millis();
+  bool isGait = true;
+  switch (command)
+  {
+    case INITIAL_CONNECT_CMD:
+      standUp();
+      isGait = false;
+      break;
+    case DISCONNECT_CMD:
+      sitDown();
+      isGait = false;
+      break;
+    case FORWARD_CMD:
+      gaitController.walkForward();
+      break;
+    case BACKWARD_CMD:
+      gaitController.walkBackward();
+      break;
+    case ROT_LEFT_CMD:
+      gaitController.rotateCCW();
+      break;
+    case ROT_RIGHT_CMD:
+      gaitController.rotateCW();
+      break;
+    case FORWARD_LEFT_CMD:
+      gaitController.walkDiagLeftFW();
+      break;
+    case FORWARD_RIGHT_CMD:
+      gaitController.walkDiagRightFW();
+      break;
+    case BACKWARD_LEFT_CMD:
+      gaitController.walkDiagLeftBW();
+      break;
+    case BACKWARD_RIGHT_CMD:
+      gaitController.walkDiagRightBW();
+      break;
+  }
+
+  if (isGait)
+  {
+    // switch active leg trio after succesfully chosing new movemnt
+    gaitController.switchSides();
+  }
+
+  lastCommand = command;
+}
+
+void Body::checkDirection(char newCommand)
+{
+  if (newCommand == lastCommand)
+  {
+    // no need for any adjustments
     return;
   }
 
-  gaitController.walkDiagLeftBW();
   gaitController.switchSides();
+}
+
+void Body::standUp()
+{
+  // initial stand up
+  Vector stance = { STANCE_X, STANCE_Y, STANCE_Z };
+  for (int i = 0; i < LEG_CNT; i++)
+  {
+    legs[i].setPosLine(stance);
+  }
+
+  isStanding = true;
+}
+
+void Body::sitDown()
+{
+  // put all legs into default position
+  Vector defaultPos = { IK_DEFUALT_X, IK_DEFAULT_Y, IK_DEFAULT_Z };
+  for (int i = 0; i < LEG_CNT; i++)
+  {
+    legs[i].setPosLine(defaultPos);
+  }
+
+  isStanding = false;
 }
