@@ -1,5 +1,4 @@
 #include "btController.h"
-#include "commands.h"
 #include <Arduino.h>
 
 void BtController::initialize()
@@ -10,7 +9,7 @@ void BtController::initialize()
 char BtController::read()
 {
   // set default return value to "no command"
-  char result = NO_CMD;
+  char result = lastValidValue;
 
   // check for data availability
   if (Serial1.available() > 0)
@@ -28,6 +27,26 @@ char BtController::read()
     {
       // disconnect command recieved
       connected = false;
+    }
+    else if (result == potentialValue)
+    {
+      currentValueReps++;
+
+      if (currentValueReps >= VALUE_CHANGE_THRESHOLD)
+      {
+        // threshold exceeded, new value will be returned from now on
+        lastValidValue = potentialValue;
+      }
+
+      result = lastValidValue;
+    }
+    else
+    {
+      // change in value, start counting occurrences of this new value
+      potentialValue = result;
+      currentValueReps = 0;
+
+      result = lastValidValue;
     }
   }
 

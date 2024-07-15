@@ -12,10 +12,14 @@ private:
   Leg *legs;
   bool odd;
 
+  bool trioTranslated = false;
+
   void applyMotion(StepStages oddStep[], StepStages evenStep[]);
   Vector getMotionVector(int legIndex, StepStages stage);
 
 public:
+  bool inTranslationMode = false;
+
   GaitController();
   GaitController(Leg legs[]);
 

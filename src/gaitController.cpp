@@ -78,11 +78,37 @@ void GaitController::walkDiagRightBW()
 
 void GaitController::applyMotion(StepStages oddStep[], StepStages evenStep[])
 {
+  int i = 0, increment = 1;
   StepStages *usedStep = odd ? oddStep : evenStep;
 
-  // assign destination point to each leg
-  for (int i = 0; i < LEG_CNT; i++)
+  if (inTranslationMode)
   {
+    // take every second leg
+    increment = 2;
+
+    if (!trioTranslated)
+    {
+      // take first leg trio (0, 2, 4)
+      trioTranslated = true;
+    }
+    else
+    {
+      // take second leg trio (1, 3, 5)
+      i = 1;
+      trioTranslated = false;
+    }
+  }
+
+  // assign destination points to legs
+  for (; i < LEG_CNT; i += increment)
+  {
+    if (inTranslationMode)
+    {
+      // automatically use ellipse interpolation in translation mode
+      legs[i].setPosEllipse(getMotionVector(i, usedStep[i]));
+      continue;
+    }
+
     if (odd && (i == 0 || i == 2 || i == 4))
     {
       // trio of legs raised during odd step

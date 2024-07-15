@@ -46,6 +46,9 @@ void Body::initialize()
 
   // reach "before connection" position
   sitDown();
+
+  // no command will always be the first "recieved" cmd
+  lastCommand = NO_CMD;
 }
 
 void Body::update(char command)
@@ -63,25 +66,123 @@ void Body::update(char command)
     legs[i].update();
   }
 
-  if (!allPlaced || command == NO_CMD || command == STOP_CMD)
+  if (!allPlaced)
   {
-    // wait until current movement is finsihed (or just do "nothing" :D)
+    // wait until current movement is finsihed
     return;
   }
 
-  // execute active leg trio pre-switch if moving to exactly oppostie direction
-  checkDirection(command);
+  if (!gaitController.inTranslationMode)
+  {
+    // not in translation mode
+    // check whether translation to new movement is necesarry
+    if (command == NO_CMD || command == STOP_CMD || checkDirection(command))
+    {
+      return;
+    }
 
-  bool isGait = true;
+    // no translation necessary, handle new command
+    matchCMDtoMove(command);
+
+    // switch active leg trio after succesfully chosing new movemnt
+    gaitController.switchSides();
+
+    lastCommand = command;
+  }
+  else
+  {
+    // in translation process
+    translateToNext();
+  }
+}
+
+bool Body::checkDirection(char newCommand)
+{
+  bool result = false;
+
+  // clang-format off
+  bool shouldCheckCMD = (newCommand != INITIAL_CONNECT_CMD) && (newCommand != DISCONNECT_CMD)
+  && (lastCommand != INITIAL_CONNECT_CMD) && (lastCommand != DISCONNECT_CMD);
+  // clang-format on
+
+  if (shouldCheckCMD && newCommand != lastCommand)
+  {
+    // clang-format off
+    bool isOpposite = (lastCommand == FORWARD_CMD && newCommand == BACKWARD_CMD)
+    || (lastCommand == BACKWARD_CMD && newCommand == FORWARD_CMD)
+    || (lastCommand == ROT_LEFT_CMD && newCommand == ROT_RIGHT_CMD)
+    || (lastCommand == ROT_RIGHT_CMD && newCommand == ROT_LEFT_CMD)
+    || (lastCommand == FORWARD_RIGHT_CMD && newCommand == BACKWARD_LEFT_CMD)
+    || (lastCommand == BACKWARD_LEFT_CMD && newCommand == FORWARD_RIGHT_CMD)
+    || (lastCommand == FORWARD_LEFT_CMD && newCommand == BACKWARD_RIGHT_CMD)
+    || (lastCommand == BACKWARD_RIGHT_CMD && newCommand == FORWARD_LEFT_CMD);
+    // clang-format on
+
+    if (isOpposite)
+    {
+      // is opposite, pre-switch to remove control delay
+      gaitController.switchSides();
+    }
+    else
+    {
+      // isn't opposite, translate to new movement via stance position
+      startTranslation(newCommand);
+      result = true;
+    }
+  }
+
+  return result;
+}
+
+void Body::startTranslation(char toCMD)
+{
+  // translation mode start
+  gaitController.inTranslationMode = true;
+  stageCounter = 0;
+
+  // will translate to this command's corresponding movement
+  lastCommand = toCMD;
+}
+
+void Body::translateToNext()
+{
+  // update of translation mode
+  if (stageCounter == 0)
+  {
+    legs[0].setPosEllipse(stance);
+    legs[2].setPosEllipse(stance);
+    legs[4].setPosEllipse(stance);
+  }
+  else if (stageCounter == 1)
+  {
+    legs[1].setPosEllipse(stance);
+    legs[3].setPosEllipse(stance);
+    legs[5].setPosEllipse(stance);
+  }
+  else if (stageCounter == 2 || stageCounter == 3)
+  {
+    matchCMDtoMove(lastCommand);
+  }
+  else
+  {
+    // all translation phases done, turn off translation mode
+    gaitController.inTranslationMode = false;
+    gaitController.switchSides();
+  }
+
+  stageCounter++;
+}
+
+void Body::matchCMDtoMove(char command)
+{
+  // invoke corresponding movement method
   switch (command)
   {
     case INITIAL_CONNECT_CMD:
       standUp();
-      isGait = false;
       break;
     case DISCONNECT_CMD:
       sitDown();
-      isGait = false;
       break;
     case FORWARD_CMD:
       gaitController.walkForward();
@@ -108,31 +209,11 @@ void Body::update(char command)
       gaitController.walkDiagRightBW();
       break;
   }
-
-  if (isGait)
-  {
-    // switch active leg trio after succesfully chosing new movemnt
-    gaitController.switchSides();
-  }
-
-  lastCommand = command;
-}
-
-void Body::checkDirection(char newCommand)
-{
-  if (newCommand == lastCommand)
-  {
-    // no need for any adjustments
-    return;
-  }
-
-  gaitController.switchSides();
 }
 
 void Body::standUp()
 {
   // initial stand up
-  Vector stance = { STANCE_X, STANCE_Y, STANCE_Z };
   for (int i = 0; i < LEG_CNT; i++)
   {
     legs[i].setPosLine(stance);
@@ -144,7 +225,6 @@ void Body::standUp()
 void Body::sitDown()
 {
   // put all legs into default position
-  Vector defaultPos = { IK_DEFUALT_X, IK_DEFAULT_Y, IK_DEFAULT_Z };
   for (int i = 0; i < LEG_CNT; i++)
   {
     legs[i].setPosLine(defaultPos);
